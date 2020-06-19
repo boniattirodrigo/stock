@@ -25,3 +25,8 @@ You can also run `./stock -h` to see these parameters.
 ```
 ./stock -selector=.stock-value -url=https://stock-values.com/stock/ -stock=stk3
 ```
+
+You can also pass an array of stocks:
+```
+./stock -selector=.stock-value -url=https://stock-values.com/stock/ -stock=stk3,stk4,cmp3
+```

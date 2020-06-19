@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"flag"
+	"strings"
 	"github.com/gocolly/colly"
 )
 
@@ -15,8 +16,14 @@ func main() {
 	c := colly.NewCollector()
 
 	c.OnHTML(*htmlSelector, func(e *colly.HTMLElement) {
-		fmt.Println(e.Text)
+    stockName := strings.ReplaceAll(e.Request.URL.String(), *url, "")
+
+		fmt.Printf("%s: %s \n", stockName, e.Text)
 	})
 
-	c.Visit(fmt.Sprint(*url, *stock))
+  stocks := strings.Split(*stock, ",")
+
+  for _, v := range stocks {
+    c.Visit(fmt.Sprint(*url, v))
+  }
 }
