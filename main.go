@@ -2,39 +2,31 @@ package main
 
 import (
   "fmt"
-  "time"
+  "net/http"
+  "github.com/boniattirodrigo/stock/workers"
+  "github.com/boniattirodrigo/stock/ws"
+  "github.com/boniattirodrigo/stock/graphql/schema"
   "github.com/boniattirodrigo/stock/db"
-  "github.com/boniattirodrigo/stock/services"
-  "github.com/jinzhu/gorm"
-  _ "github.com/jinzhu/gorm/dialects/postgres"
+  "github.com/graphql-go/handler"
 )
 
-var exit = make(chan bool)
-
 func main() {
-  stocks := [3]string{"AZUL4", "PETR4", "LREN3"}
-  dbConnection, err := gorm.Open("postgres", "user=user dbname=dbname sslmode=disable")
+  db.Connect()
+  go workers.Start()
 
-  if err != nil {
-    panic(err)
-  }
+	h := handler.New(&handler.Config{
+		Schema:     &schema.Schema,
+		Pretty:     true,
+		GraphiQL:   false,
+		Playground: true,
+	})
 
-  defer dbConnection.Close()
+	http.Handle("/", h)
 
-  db.RunMigrations(stocks, dbConnection)
+	http.HandleFunc("/subscriptions", ws.Handler(ws.StockPublisher))
 
-  ticker := time.NewTicker(5 * time.Second)
-  go func() {
-    for {
-        select {
-        case <-ticker.C:
-          for _, stockName := range stocks {
-            go services.UpdateStocks(stockName, dbConnection)
-          }
-        }
-    }
-  }()
-
-  <-exit
-  fmt.Println("Done.")
+	fmt.Println("server is started at: http://localhost:8080/")
+	fmt.Println("graphql api server is started at: http://localhost:8080/graphql")
+	fmt.Println("subscriptions api server is started at: http://localhost:8080/subscriptions")
+  http.ListenAndServe(":8080", nil)
 }

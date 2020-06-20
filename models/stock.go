@@ -6,6 +6,6 @@ import (
 
 type Stock struct {
   gorm.Model
-  Ticket string `gorm:"size:10;unique;not null"`
-  Price float64 `sql:"type:decimal(10,2);"`
+  Ticker string  `gorm:"size:10;unique;not null"`
+  Price  float64 `sql:"type:decimal(10,2);"`
 }
