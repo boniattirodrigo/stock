@@ -1,29 +1,40 @@
 package main
 
 import (
-	"fmt"
-	"flag"
-	"strings"
-	"github.com/gocolly/colly"
+  "fmt"
+  "time"
+  "github.com/boniattirodrigo/stock/db"
+  "github.com/boniattirodrigo/stock/services"
+  "github.com/jinzhu/gorm"
+  _ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+var exit = make(chan bool)
+
 func main() {
-	htmlSelector := flag.String("selector", "", "HTML selector to find the data")
-	url := flag.String("url", "", "URL to fetch the information")
-	stock := flag.String("stock", "", "Stock that you want to know the value")
-	flag.Parse()
+  stocks := [3]string{"AZUL4", "PETR4", "LREN3"}
+  dbConnection, err := gorm.Open("postgres", "user=user dbname=dbname sslmode=disable")
 
-	c := colly.NewCollector()
-
-	c.OnHTML(*htmlSelector, func(e *colly.HTMLElement) {
-    stockName := strings.ReplaceAll(e.Request.URL.String(), *url, "")
-
-		fmt.Printf("%s: %s \n", stockName, e.Text)
-	})
-
-  stocks := strings.Split(*stock, ",")
-
-  for _, v := range stocks {
-    c.Visit(fmt.Sprint(*url, v))
+  if err != nil {
+    panic(err)
   }
+
+  defer dbConnection.Close()
+
+  db.RunMigrations(stocks, dbConnection)
+
+  ticker := time.NewTicker(5 * time.Second)
+  go func() {
+    for {
+        select {
+        case <-ticker.C:
+          for _, stockName := range stocks {
+            go services.UpdateStocks(stockName, dbConnection)
+          }
+        }
+    }
+  }()
+
+  <-exit
+  fmt.Println("Done.")
 }
