@@ -1,32 +1,43 @@
-# Get stock value by CLI
-
-This is a demo project about how to get a stock value using a web crawler.
+# Graphql server to get stock values
+This is a demo project about how to get stock values using a web crawler.
 
 ## Clone
 ```
 git clone git@github.com:boniattirodrigo/stock.git
 ```
 
-## Build
-Make sure that you are using the right Go version defined on .tool-versions
-```
-go build
-```
-
 ## Run
-To run you need to pass 3 parameters:
-- selector = HTML selector to find the data
-- url = URL to fetch the information
-- stock = Stock that you want to know the value
+Make sure that you're using the right Go version defined on .tool-versions.
 
-You can also run `./stock -h` to see these parameters.
+You need to set a Postgres connection string, copying and changing the .env file:
+```
+cp .env-sample .env
+```
+Create the database that you defined on the connection string.
 
-**Example:**
+Spin it up with:
 ```
-./stock -selector=.stock-value -url=https://stock-values.com/stock/ -stock=stk3
+go run main.go
 ```
 
-You can also pass an array of stocks:
+Access http://localhost:8080/ to interact with GraphQL Playground. Here some examples to run:
+
+**subscription:**
 ```
-./stock -selector=.stock-value -url=https://stock-values.com/stock/ -stock=stk3,stk4,cmp3
+subscription {
+  stocks(tickers:["PETR4", "LREN3", "AZUL4"]) {
+    ticker
+    price
+  }
+}
+```
+
+**query:**
+```
+query {
+  stocks(tickers:["PETR4", "LREN3", "AZUL4"]) {
+    ticker
+    price
+  }
+}
 ```

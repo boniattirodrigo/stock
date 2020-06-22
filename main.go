@@ -7,11 +7,13 @@ import (
   "github.com/boniattirodrigo/stock/ws"
   "github.com/boniattirodrigo/stock/graphql/schema"
   "github.com/boniattirodrigo/stock/db"
+  "github.com/boniattirodrigo/stock/db/migrations"
   "github.com/graphql-go/handler"
 )
 
 func main() {
   db.Connect()
+  migrations.CreateStocks(db.Connection)
   go workers.Start()
 
 	h := handler.New(&handler.Config{
