@@ -44,22 +44,26 @@ func Start() {
   var tickers []string
   db.Connection.Find(&stocks).Pluck("ticker", &tickers)
 
-  for _, ticker := range tickers {
-    timer := time.NewTimer(5 * time.Second)
-    <-timer.C
+  // FOR DEVELOPMENT
+  // for _, ticker := range tickers {
+  //   timer := time.NewTimer(5 * time.Second)
+  //   <-timer.C
 
-    go updateRandomStockPrince(ticker)
-  }
-
-  // for {
-  //   select {
-  //   case <-timer.C:
-  //     for _, ticker := range tickers {
-  //       timer := time.NewTimer(5 * time.Second)
-  //       <-timer.C
-
-  //       go updateRandomStockPrince(ticker)
-  //     }
-  //   }
+  //   go updateRandomStockPrince(ticker)
   // }
+
+  // FOR PRODUCTION
+  timeTicker := time.NewTicker(8 * time.Minute)
+
+  for {
+    select {
+    case <-timeTicker.C:
+      for _, ticker := range tickers {
+        timer := time.NewTimer(5 * time.Second)
+        <-timer.C
+
+        go updateStockPrice(ticker)
+      }
+    }
+  }
 }

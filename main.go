@@ -2,6 +2,7 @@ package main
 
 import (
   "fmt"
+  "os"
   "net/http"
   "github.com/boniattirodrigo/stock/workers"
   "github.com/boniattirodrigo/stock/ws"
@@ -14,6 +15,12 @@ import (
 func main() {
   db.Connect()
   migrations.CreateStocks(db.Connection)
+  port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
   go workers.Start()
 
 	h := handler.New(&handler.Config{
@@ -25,10 +32,9 @@ func main() {
 
 	http.Handle("/", h)
 
-	http.HandleFunc("/subscriptions", ws.Handler(ws.StockPublisher))
-
+  http.HandleFunc("/subscriptions", ws.Handler(ws.StockPublisher))
 	fmt.Println("server is started at: http://localhost:8080/")
 	fmt.Println("graphql api server is started at: http://localhost:8080/graphql")
 	fmt.Println("subscriptions api server is started at: http://localhost:8080/subscriptions")
-  http.ListenAndServe(":8080", nil)
+  http.ListenAndServe(fmt.Sprint(":", port), nil)
 }
