@@ -28,11 +28,10 @@ func main() {
 		Pretty:     true,
 		GraphiQL:   false,
 		Playground: true,
-	})
+  })
 
-	http.Handle("/", h)
-
-  http.HandleFunc("/subscriptions", ws.Handler(ws.StockPublisher))
+  http.Handle("/", h)
+  http.HandleFunc("/subscriptions", ws.Handler)
 	fmt.Println("server is started at: http://localhost:8080/")
 	fmt.Println("graphql api server is started at: http://localhost:8080/graphql")
 	fmt.Println("subscriptions api server is started at: http://localhost:8080/subscriptions")

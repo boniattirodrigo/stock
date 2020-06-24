@@ -13,7 +13,7 @@ func StockPublisher() {
 		subscriber, ok := value.(*Subscriber)
 		if !ok {
 			return true
-		}
+    }
 		payload := graphql.Do(graphql.Params{
 			Schema:        schema.Schema,
 			RequestString: subscriber.RequestString,
