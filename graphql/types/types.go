@@ -13,15 +13,15 @@ var StockType = graphql.NewObject(graphql.ObjectConfig{
 		"ticker": &graphql.Field{
 			Type:        graphql.String,
 			Description: "Stock ticker",
-    },
+		},
 		"price": &graphql.Field{
 			Type:        graphql.Float,
 			Description: "Stock price",
-    },
+		},
 		"createdAt": &graphql.Field{
 			Type:        graphql.DateTime,
 			Description: "Stock created date",
-    },
+		},
 		"updatedAt": &graphql.Field{
 			Type:        graphql.DateTime,
 			Description: "Stock updated date",

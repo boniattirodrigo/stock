@@ -1,10 +1,10 @@
 package schema
 
 import (
-	"github.com/graphql-go/graphql"
 	"github.com/boniattirodrigo/stock/graphql/resolvers"
-  "github.com/boniattirodrigo/stock/graphql/types"
-  "github.com/boniattirodrigo/stock/utils"
+	"github.com/boniattirodrigo/stock/graphql/types"
+	"github.com/boniattirodrigo/stock/utils"
+	"github.com/graphql-go/graphql"
 )
 
 var Schema graphql.Schema
@@ -14,7 +14,7 @@ func init() {
 		Name: "Query",
 		Fields: graphql.Fields{
 			"stocks": &graphql.Field{
-        Type: graphql.NewList(types.StockType),
+				Type: graphql.NewList(types.StockType),
 				Args: graphql.FieldConfigArgument{
 					"tickers": &graphql.ArgumentConfig{
 						Description: "Tickers",
@@ -22,8 +22,8 @@ func init() {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-          tickers := utils.InterfaceToArrayOfStrings(p.Args["tickers"])
-          return resolvers.FetchStocks(tickers), nil
+					tickers := utils.InterfaceToArrayOfStrings(p.Args["tickers"])
+					return resolvers.FetchStocks(tickers), nil
 				},
 			},
 		},
@@ -33,7 +33,7 @@ func init() {
 		Name: "Subscription",
 		Fields: graphql.Fields{
 			"stocks": &graphql.Field{
-        Type: graphql.NewList(types.StockType),
+				Type: graphql.NewList(types.StockType),
 				Args: graphql.FieldConfigArgument{
 					"tickers": &graphql.ArgumentConfig{
 						Description: "Tickers",
@@ -41,8 +41,8 @@ func init() {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-          tickers := utils.InterfaceToArrayOfStrings(p.Args["tickers"])
-          return resolvers.FetchStocks(tickers), nil
+					tickers := utils.InterfaceToArrayOfStrings(p.Args["tickers"])
+					return resolvers.FetchStocks(tickers), nil
 				},
 			},
 		},

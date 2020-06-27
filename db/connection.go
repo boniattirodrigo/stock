@@ -1,22 +1,22 @@
 package db
 
 import (
-  "os"
-  "github.com/jinzhu/gorm"
-  "github.com/joho/godotenv"
-  _ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/joho/godotenv"
+	"os"
 )
 
 var Connection *gorm.DB
 
 func Connect() {
-  godotenv.Load()
-  connectionString := os.Getenv("CONNECTION_STRING")
-  dbConnection, err := gorm.Open("postgres", connectionString)
+	godotenv.Load()
+	connectionString := os.Getenv("CONNECTION_STRING")
+	dbConnection, err := gorm.Open("postgres", connectionString)
 
-  if err != nil {
-    panic(err)
-  }
+	if err != nil {
+		panic(err)
+	}
 
-  Connection = dbConnection
+	Connection = dbConnection
 }

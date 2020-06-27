@@ -2,10 +2,10 @@ package ws
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/boniattirodrigo/stock/graphql/schema"
 	"github.com/gorilla/websocket"
-  "github.com/graphql-go/graphql"
-  "github.com/boniattirodrigo/stock/graphql/schema"
+	"github.com/graphql-go/graphql"
+	"log"
 )
 
 func StockPublisher() {
@@ -13,7 +13,7 @@ func StockPublisher() {
 		subscriber, ok := value.(*Subscriber)
 		if !ok {
 			return true
-    }
+		}
 		payload := graphql.Do(graphql.Params{
 			Schema:        schema.Schema,
 			RequestString: subscriber.RequestString,
