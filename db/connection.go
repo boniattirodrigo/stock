@@ -14,6 +14,10 @@ func Connect() {
 	connectionString := os.Getenv("CONNECTION_STRING")
 	dbConnection, err := gorm.Open("postgres", connectionString)
 
+	if (os.Getenv("ENVIRONMENT") == "development") {
+		dbConnection.LogMode(true)
+	}
+
 	if err != nil {
 		panic(err)
 	}
