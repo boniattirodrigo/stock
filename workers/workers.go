@@ -6,23 +6,21 @@ import (
 	"github.com/boniattirodrigo/stock/models"
 	"github.com/boniattirodrigo/stock/ws"
 	"github.com/gocolly/colly"
+	"github.com/joho/godotenv"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func updateRandomStockPrince(ticker string) {
+func updateRandomStockPrice(ticker string) {
 	var stock models.Stock
-	db.Connection.Where("ticker = ?", ticker).First(&stock)
-	db.Connection.Model(&stock).Update("price", rand.Float64()*10)
+	db.Connection.Model(&stock).Where("ticker = ?", ticker).Update("price", rand.Float64()*10)
 	ws.StockPublisher()
 }
 
 func updateStockPrice(ticker string) {
-	timer := time.NewTimer(5 * time.Second)
-	<-timer.C
-
 	c := colly.NewCollector()
 
 	c.OnHTML(".special strong", func(e *colly.HTMLElement) {
@@ -30,8 +28,7 @@ func updateStockPrice(ticker string) {
 		price, err := strconv.ParseFloat(strings.ReplaceAll(e.Text, ",", "."), 64)
 
 		if err == nil {
-			db.Connection.Where("ticker = ?", ticker).First(&stock)
-			db.Connection.Model(&stock).Update("price", price)
+			db.Connection.Model(&stock).Where("ticker = ?", ticker).Update("price", price)
 			ws.StockPublisher()
 		}
 	})
@@ -42,27 +39,28 @@ func updateStockPrice(ticker string) {
 func Start() {
 	var stocks []models.Stock
 	var tickers []string
+	godotenv.Load()
 	db.Connection.Find(&stocks).Pluck("ticker", &tickers)
 
-	// FOR DEVELOPMENT
-	// for _, ticker := range tickers {
-	//   timer := time.NewTimer(5 * time.Second)
-	//   <-timer.C
+	if os.Getenv("ENVIRONMENT") == "development" {
+		for _, ticker := range tickers {
+			timer := time.NewTimer(5 * time.Second)
+			<-timer.C
 
-	//   go updateRandomStockPrince(ticker)
-	// }
+			go updateRandomStockPrice(ticker)
+		}
+	} else {
+		timeTicker := time.NewTicker(8 * time.Minute)
 
-	// FOR PRODUCTION
-	timeTicker := time.NewTicker(8 * time.Minute)
+		for {
+			select {
+			case <-timeTicker.C:
+				for _, ticker := range tickers {
+					timer := time.NewTimer(5 * time.Second)
+					<-timer.C
 
-	for {
-		select {
-		case <-timeTicker.C:
-			for _, ticker := range tickers {
-				timer := time.NewTimer(5 * time.Second)
-				<-timer.C
-
-				go updateStockPrice(ticker)
+					go updateStockPrice(ticker)
+				}
 			}
 		}
 	}
