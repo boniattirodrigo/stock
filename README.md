@@ -42,6 +42,17 @@ query {
 }
 ```
 
+
+## Build
+```
+go build -o bin/stock
+```
+
+## Deploy
+```
+git push heroku main:master
+```
+
 ## Format code
 ```
 gofmt -w -s -d .
