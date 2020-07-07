@@ -6,9 +6,7 @@ import (
 	"github.com/boniattirodrigo/stock/models"
 	"github.com/boniattirodrigo/stock/ws"
 	"github.com/gocolly/colly"
-	"github.com/joho/godotenv"
 	"math/rand"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -20,10 +18,10 @@ func updateRandomStockPrice(ticker string) {
 	ws.StockPublisher()
 }
 
-func updateStockPrice(ticker string) {
+func updateStockPrice(url string, selector string, ticker string) {
 	c := colly.NewCollector()
 
-	c.OnHTML(".special strong", func(e *colly.HTMLElement) {
+	c.OnHTML(selector, func(e *colly.HTMLElement) {
 		var stock models.Stock
 		price, err := strconv.ParseFloat(strings.ReplaceAll(e.Text, ",", "."), 64)
 
@@ -33,35 +31,46 @@ func updateStockPrice(ticker string) {
 		}
 	})
 
-	c.Visit(fmt.Sprint("https://statusinvest.com.br/acoes/", ticker))
+	c.Visit(fmt.Sprint(url, ticker))
 }
 
-func Start() {
-	var stocks []models.Stock
-	var tickers []string
-	godotenv.Load()
-	db.Connection.Find(&stocks).Pluck("ticker", &tickers)
+func crawlPages(url string, selector string, tickers []string, interval int) {
+	readyToCrawlChannel := make(chan bool)
+	totalCrawled := 0
 
-	if os.Getenv("ENVIRONMENT") == "development" {
-		for _, ticker := range tickers {
-			timer := time.NewTimer(5 * time.Second)
-			<-timer.C
+	go func() {
+		readyToCrawlChannel <- true
+	}()
 
-			go updateRandomStockPrice(ticker)
-		}
-	} else {
-		timeTicker := time.NewTicker(8 * time.Minute)
+	for {
+		select {
+		case <-readyToCrawlChannel:
+			for _, ticker := range tickers {
+				timer := time.NewTimer(time.Duration(interval) * time.Second)
+				<-timer.C
 
-		for {
-			select {
-			case <-timeTicker.C:
-				for _, ticker := range tickers {
-					timer := time.NewTimer(5 * time.Second)
-					<-timer.C
+				go updateStockPrice(url, selector, ticker)
 
-					go updateStockPrice(ticker)
+				totalCrawled += 1
+
+				if len(tickers) == totalCrawled {
+					go func() {
+						totalCrawled = 0
+						readyToCrawlChannel <- true
+					}()
 				}
 			}
 		}
 	}
+}
+
+func Start() {
+	var stocks []models.Stock
+	var tickersAsc []string
+	var tickersDesc []string
+	db.Connection.Order("ticker asc").Find(&stocks).Pluck("ticker", &tickersAsc)
+	db.Connection.Order("ticker desc").Find(&stocks).Pluck("ticker", &tickersDesc)
+
+	go crawlPages("https://statusinvest.com.br/acoes/", ".special strong", tickersAsc, 5)
+	go crawlPages("https://www.infomoney.com.br/", ".line-info .value p", tickersDesc, 1)
 }

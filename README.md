@@ -41,3 +41,8 @@ query {
   }
 }
 ```
+
+## Format code
+```
+gofmt -w -s -d .
+```
