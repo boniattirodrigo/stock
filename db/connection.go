@@ -11,7 +11,7 @@ var Connection *gorm.DB
 
 func Connect() {
 	godotenv.Load()
-	connectionString := os.Getenv("CONNECTION_STRING")
+	connectionString := os.Getenv("DATABASE_URL")
 	dbConnection, err := gorm.Open("postgres", connectionString)
 
 	if os.Getenv("ENVIRONMENT") == "development" {
