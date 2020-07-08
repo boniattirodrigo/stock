@@ -7,7 +7,7 @@ import (
 	"github.com/boniattirodrigo/stock/graphql/schema"
 	"github.com/boniattirodrigo/stock/workers"
 	"github.com/boniattirodrigo/stock/ws"
-	"github.com/graphql-go/handler"
+	"github.com/boniattirodrigo/handler"
 	"net/http"
 	"os"
 )
