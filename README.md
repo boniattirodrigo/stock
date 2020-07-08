@@ -9,11 +9,11 @@ git clone git@github.com:boniattirodrigo/stock.git
 ## Run
 Make sure that you're using the right Go version defined on .tool-versions.
 
-You need to set a Postgres connection string, copying and changing the .env file:
+You need to set a Postgres database url, copying and changing the .env file:
 ```
 cp .env-sample .env
 ```
-Create the database that you defined on the connection string.
+Create the database that you defined on the database url.
 
 Spin it up with:
 ```

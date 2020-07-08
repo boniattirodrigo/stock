@@ -13,10 +13,7 @@ func Connect() {
 	godotenv.Load()
 	connectionString := os.Getenv("DATABASE_URL")
 	dbConnection, err := gorm.Open("postgres", connectionString)
-
-	if os.Getenv("ENVIRONMENT") == "development" {
-		dbConnection.LogMode(true)
-	}
+	dbConnection.LogMode(true)
 
 	if err != nil {
 		panic(err)

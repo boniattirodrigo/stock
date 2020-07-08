@@ -18,8 +18,10 @@ func updateRandomStockPrice(ticker string) {
 	ws.StockPublisher()
 }
 
-func updateStockPrice(url string, selector string, ticker string) {
+func updateStockPrice(url string, selector string, ticker string, timeout time.Duration) {
 	c := colly.NewCollector()
+
+	c.SetRequestTimeout(timeout)
 
 	c.OnHTML(selector, func(e *colly.HTMLElement) {
 		var stock models.Stock
@@ -36,28 +38,21 @@ func updateStockPrice(url string, selector string, ticker string) {
 
 func crawlPages(url string, selector string, tickers []string, interval int) {
 	readyToCrawlChannel := make(chan bool)
-	totalCrawled := 0
-
-	go func() {
-		readyToCrawlChannel <- true
-	}()
+	readyToCrawl := func() { readyToCrawlChannel <- true }
+	go readyToCrawl()
 
 	for {
 		select {
 		case <-readyToCrawlChannel:
-			for _, ticker := range tickers {
-				timer := time.NewTimer(time.Duration(interval) * time.Second)
+			for index, ticker := range tickers {
+				intervalTime := time.Duration(interval) * time.Second
+				timer := time.NewTimer(intervalTime)
 				<-timer.C
 
-				go updateStockPrice(url, selector, ticker)
+				go updateStockPrice(url, selector, ticker, intervalTime)
 
-				totalCrawled += 1
-
-				if len(tickers) == totalCrawled {
-					go func() {
-						totalCrawled = 0
-						readyToCrawlChannel <- true
-					}()
+				if len(tickers) == index+1 {
+					go readyToCrawl()
 				}
 			}
 		}
