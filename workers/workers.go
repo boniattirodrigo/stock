@@ -28,8 +28,13 @@ func updateStockPrice(url string, selector string, ticker string, timeout time.D
 		price, err := strconv.ParseFloat(strings.ReplaceAll(e.Text, ",", "."), 64)
 
 		if err == nil {
-			db.Connection.Model(&stock).Where("ticker = ?", ticker).Update("price", price)
-			ws.StockPublisher()
+			db.Connection.Where("ticker = ?", ticker).First(&stock)
+
+			if stock.Price != price {
+				stock.Price = price
+				db.Connection.Save(&stock)
+				ws.StockPublisher()
+			}
 		}
 	})
 
