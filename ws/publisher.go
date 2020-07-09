@@ -15,9 +15,11 @@ func StockPublisher() {
 			return true
 		}
 		payload := graphql.Do(graphql.Params{
-			Schema:        schema.Schema,
-			RequestString: subscriber.RequestString,
+			Schema:         schema.Schema,
+			RequestString:  subscriber.RequestString,
+			VariableValues: subscriber.Variables,
 		})
+
 		message, err := json.Marshal(map[string]interface{}{
 			"type":    "data",
 			"id":      subscriber.OperationID,

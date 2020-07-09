@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/boniattirodrigo/handler"
 	"github.com/boniattirodrigo/stock/db"
 	"github.com/boniattirodrigo/stock/db/migrations"
 	"github.com/boniattirodrigo/stock/graphql/schema"
 	"github.com/boniattirodrigo/stock/workers"
 	"github.com/boniattirodrigo/stock/ws"
-	"github.com/boniattirodrigo/handler"
 	"net/http"
 	"os"
 )

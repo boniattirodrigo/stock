@@ -12,7 +12,8 @@ type ConnectionACKMessage struct {
 	OperationID string `json:"id,omitempty"`
 	Type        string `json:"type"`
 	Payload     struct {
-		Query string `json:"query"`
+		Query     string                 `json:"query"`
+		Variables map[string]interface{} `json:"variables"`
 	} `json:"payload,omitempty"`
 }
 
@@ -20,6 +21,7 @@ type Subscriber struct {
 	ID            int
 	Conn          *websocket.Conn
 	RequestString string
+	Variables     map[string]interface{}
 	OperationID   string
 }
 
@@ -76,10 +78,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 					length++
 					return true
 				})
+
 				var subscriber = Subscriber{
 					ID:            length + 1,
 					Conn:          conn,
 					RequestString: msg.Payload.Query,
+					Variables:     msg.Payload.Variables,
 					OperationID:   msg.OperationID,
 				}
 				Subscribers.Store(subscriber.ID, &subscriber)
