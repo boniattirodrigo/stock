@@ -15,7 +15,7 @@ import (
 func updateRandomStockPrice(ticker string) {
 	var stock models.Stock
 	db.Connection.Model(&stock).Where("ticker = ?", ticker).Update("price", rand.Float64()*10)
-	ws.StockPublisher()
+	ws.StockChangedPublish(ticker)
 }
 
 func updateStockPrice(url string, selector string, ticker string, timeout time.Duration) {
@@ -33,7 +33,7 @@ func updateStockPrice(url string, selector string, ticker string, timeout time.D
 			if stock.Price != price {
 				stock.Price = price
 				db.Connection.Save(&stock)
-				ws.StockPublisher()
+				ws.StockChangedPublish(ticker)
 			}
 		}
 	})

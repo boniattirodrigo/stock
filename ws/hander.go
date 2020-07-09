@@ -87,7 +87,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 					OperationID:   msg.OperationID,
 				}
 				Subscribers.Store(subscriber.ID, &subscriber)
-				StockPublisher()
+				InitialPublish(subscriber.ID)
 			}
 		}
 	}()
