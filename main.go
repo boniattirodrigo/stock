@@ -8,6 +8,7 @@ import (
 	"github.com/boniattirodrigo/stock/graphql/schema"
 	"github.com/boniattirodrigo/stock/workers"
 	"github.com/boniattirodrigo/stock/ws"
+	_ "github.com/heroku/x/hmetrics/onload"
 	"net/http"
 	"os"
 )
