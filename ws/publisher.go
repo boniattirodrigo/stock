@@ -47,6 +47,18 @@ func InitialPublish(key int) {
 	}
 }
 
+func PingAllSubscribers() {
+	Subscribers.Range(func(key, value interface{}) bool {
+		subscriber, ok := value.(*Subscriber)
+
+		if ok {
+			publish(subscriber, key.(int))
+		}
+
+		return true
+	})
+}
+
 func StockChangedPublish(ticker string) {
 	Subscribers.Range(func(key, value interface{}) bool {
 		subscriber, ok := value.(*Subscriber)
