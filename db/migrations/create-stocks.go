@@ -9,11 +9,16 @@ import (
 	"os"
 )
 
-type Tickers struct {
-	Tickers []string `json:"tickers"`
+type Ticker struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
-func readTickersFromJsonFile() []string {
+type Tickers struct {
+	Tickers []Ticker `json:"tickers"`
+}
+
+func readTickersFromJsonFile() []Ticker {
 	jsonFile, err := os.Open("tickers.json")
 
 	if err != nil {
@@ -38,6 +43,6 @@ func CreateStocks(dbConnection *gorm.DB) {
 
 	for _, ticker := range tickers {
 		var stock models.Stock
-		dbConnection.FirstOrCreate(&stock, models.Stock{Ticker: ticker})
+		dbConnection.FirstOrCreate(&stock, models.Stock{Ticker: ticker.Name, Type: ticker.Type})
 	}
 }

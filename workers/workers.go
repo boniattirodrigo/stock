@@ -60,11 +60,11 @@ func crawlPages(url string, selector string, tickers []string, interval int) {
 		select {
 		case <-readyToCrawlChannel:
 			for index, ticker := range tickers {
-				if isTimeToCrawl() {
-					intervalTime := time.Duration(interval) * time.Second
-					timer := time.NewTimer(intervalTime)
-					<-timer.C
+				intervalTime := time.Duration(interval) * time.Second
+				timer := time.NewTimer(intervalTime)
+				<-timer.C
 
+				if isTimeToCrawl() {
 					go updateStockPrice(url, selector, ticker, intervalTime)
 				}
 
@@ -78,7 +78,7 @@ func crawlPages(url string, selector string, tickers []string, interval int) {
 
 func pingAllSubscribers() {
 	// Keep pinging all subscribers every 50 seconds to avoid a timeout from Heroku
-	timeTicker := time.NewTicker(50 * time.Second)
+	timeTicker := time.NewTicker(45 * time.Second)
 
 	for {
 		select {
@@ -92,10 +92,16 @@ func Start() {
 	var stocks []models.Stock
 	var tickersAsc []string
 	var tickersDesc []string
-	db.Connection.Order("ticker asc").Find(&stocks).Pluck("ticker", &tickersAsc)
-	db.Connection.Order("ticker desc").Find(&stocks).Pluck("ticker", &tickersDesc)
+	var funds []string
+	var cryptos []string
+	db.Connection.Where("type = ?", "stock").Order("ticker asc").Find(&stocks).Pluck("ticker", &tickersAsc)
+	db.Connection.Where("type = ?", "stock").Order("ticker desc").Find(&stocks).Pluck("ticker", &tickersDesc)
+	db.Connection.Where("type = ?", "fund").Order("ticker desc").Find(&stocks).Pluck("ticker", &funds)
+	db.Connection.Where("type = ?", "crypto").Order("ticker desc").Find(&stocks).Pluck("ticker", &cryptos)
 
 	go crawlPages("https://statusinvest.com.br/acoes/", ".special strong", tickersAsc, 5)
 	go crawlPages("https://www.infomoney.com.br/", ".line-info .value p", tickersDesc, 5)
+	go crawlPages("https://www.infomoney.com.br/", ".line-info .value p", funds, 10)
+	go crawlPages("https://cryptowat.ch/assets/", ".items-center .price", cryptos, 10)
 	go pingAllSubscribers()
 }
