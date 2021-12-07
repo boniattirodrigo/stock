@@ -1,5 +1,5 @@
 # Graphql server to get stock values
-This is a demo project about how to get stock values using a web crawler.
+This is a demo project about how to get stock quotes using a web crawler with Go.
 
 ## Clone
 ```
